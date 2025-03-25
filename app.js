@@ -1,8 +1,12 @@
 const express = require('express');
 const { Pool } = require('pg');
+const cors = require('cors'); // Import CORS package
 
 const app = express();
 const port = 3000;
+
+// Enable CORS for all routes (you can configure it to be more specific if needed)
+app.use(cors()); 
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -18,18 +22,18 @@ const pool = new Pool({
     }
 });
 
-// POST route to insert a new user
+// POST route to insert a new contact
 app.post('/contacts', async (req, res) => {
     const { name, email, phonenumber, message } = req.body;
 
-    if (!name || !email || !message ||!phonenumber) {
+    if (!name || !email || !message || !phonenumber) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
     try {
         const result = await pool.query(
             'INSERT INTO contacts (name, email, phonenumber, message) VALUES ($1, $2, $3, $4) RETURNING *',
-            [name, email,phonenumber, message]
+            [name, email, phonenumber, message]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
